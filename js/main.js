@@ -43,28 +43,26 @@ window.addEventListener('DOMContentLoaded', () => {
         const startTimer = setInterval(updateClock, 1000);
     };
 
-    countTimer('25 april 2021');
+    countTimer('26 april 2021');
 
     //меню
     const toggleMenu = () => {
+        const menu = document.querySelector('menu');
 
-        const btnMenu = document.querySelector('.menu'),
-            menu = document.querySelector('menu'),
-            closeBtn = document.querySelector('.close-btn'),
-            menuItems = menu.querySelectorAll('ul>li');
-
-        const handlerMenu = () => {
-            menu.classList.toggle('active-menu');
+        const closeMenu = (event) => {
+            let target = event.target;
+            if (target.closest('.menu')) {
+                menu.classList.add('active-menu');
+            }
+            if (target.classList.contains('close-btn') || target.getAttribute('href')) {
+                menu.classList.remove('active-menu');
+            }
+            if (!target.closest('menu') && !target.closest('.menu')) {
+                menu.classList.remove('active-menu');
+            }
         };
 
-        btnMenu.addEventListener('click', () => {
-            handlerMenu();
-        });
-        closeBtn.addEventListener('click', () => {
-            handlerMenu();
-        });
-
-        menuItems.forEach((items) => items.addEventListener('click', handlerMenu));
+        document.addEventListener('click', closeMenu);
     };
 
     toggleMenu();
@@ -73,7 +71,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const togglePopup = () => {
         const popup = document.querySelector('.popup'),
             popupBtn = document.querySelectorAll('.popup-btn'),
-            popupClose = document.querySelector('.popup-close'),
             popupContent = document.querySelector('.popup-content');
 
         popupBtn.forEach((elem) => {
@@ -97,8 +94,11 @@ window.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        popupClose.addEventListener('click', () => {
-            popup.style.display = 'none';
+        popup.addEventListener('click', (event) => {
+            let target = event.target;
+            if (target.classList.contains('popup') || target.classList.contains('popup-close')) {
+                popup.style.display = 'none';
+            }
         });
     };
 
@@ -117,7 +117,7 @@ window.addEventListener('DOMContentLoaded', () => {
         };
         const idAddSmoothScrolling = setInterval(addSmoothScrolling, 5);
     };
-    //элементы полученный для прокрутки
+    //элементы полученные для прокрутки
     {
         const btnServiceBlock = document.getElementsByTagName('a')[0],
             menu = document.querySelector('menu'),
@@ -134,9 +134,41 @@ window.addEventListener('DOMContentLoaded', () => {
                 event.preventDefault();
                 const idItems = items.querySelector('a');
                 const id = idItems.getAttribute('href');
-                console.log(id);
                 smoothScrolling(id);
             });
         });
     }
+
+    //табы
+    const tabs = () => {
+        const tabHeader = document.querySelector('.service-header'),
+            tab = tabHeader.querySelectorAll('.service-header-tab'),
+            tabContent = document.querySelectorAll('.service-tab');
+
+        const toggleTabContent = (index) => {
+            for (let i = 0; i < tabContent.length; i++) {
+                if (index === i) {
+                    tab[i].classList.add('active');
+                    tabContent[i].classList.remove('d-none');
+                } else {
+                    tab[i].classList.remove('active');
+                    tabContent[i].classList.add('d-none');
+                }
+            };
+        };
+
+        tabHeader.addEventListener('click', (event) => {
+            let target = event.target;
+            target = target.closest('.service-header-tab');
+            if (target.classList.contains('service-header-tab')) {
+                tab.forEach((item, i) => {
+                    if (item === target) {
+                        toggleTabContent(i);
+                    }
+                });
+            }
+        });
+    };
+
+    tabs();
 });
