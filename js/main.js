@@ -188,7 +188,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 dots.append(doter);
             }
         };
-
         addDot();
 
         const dot = document.querySelectorAll('.dot');
