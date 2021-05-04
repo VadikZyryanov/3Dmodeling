@@ -274,13 +274,14 @@ window.addEventListener('DOMContentLoaded', () => {
     const changePhoto = () => {
         const photos = document.querySelectorAll('.command__photo');
         photos.forEach((photo) => {
-            photo.addEventListener('mouseenter', (event) => {
-                let src = event.target.src;
-                event.target.src = event.target.dataset.img;
-                photo.addEventListener('mouseleave', (event) => {
-                    event.target.src = src;
-                });
-            });
+            const changePhoto = () => {
+                const src = photo.src;
+                const twoSrc = photo.dataset.img;
+                photo.src = twoSrc;
+                photo.dataset.img = src;
+            };
+            photo.addEventListener('mouseenter', changePhoto);
+            photo.addEventListener('mouseleave', changePhoto);
         });
     };
 
@@ -300,7 +301,7 @@ window.addEventListener('DOMContentLoaded', () => {
             inputMessage = document.getElementById('form2-message');
 
         const checkName = (input) => {
-            input.value = input.value.replace(/[^А-Яа-яЁё|\-|\s]/g, '');
+            input.value = input.value.replace(/[^А-Яа-яЁё|\s]/g, '');
             input.addEventListener('blur', () => {
                 input.value = input.value.replace(/\s+/g, ' ');
                 input.value = input.value.replace(/\-+/g, '-');
@@ -323,7 +324,7 @@ window.addEventListener('DOMContentLoaded', () => {
         };
 
         const checkPhone = (input) => {
-            input.value = input.value.replace(/[^0-9|\(|\)|\-]/g, '');
+            input.value = input.value.replace(/[^0-9|\+]/g, '');
             input.addEventListener('blur', () => {
                 input.value = input.value.replace(/\-+/g, '-');
                 input.value = input.value.replace(/^-+|-+$/g, '');
@@ -367,7 +368,7 @@ window.addEventListener('DOMContentLoaded', () => {
         });
 
         inputMessage.addEventListener('input', () => {
-            inputMessage.value = inputMessage.value.replace(/[^А-Яа-яЁё|\-|\s]/g, '');
+            inputMessage.value = inputMessage.value.replace(/[^А-Яа-яЁё|\s|\d|.,!?]/g, '');
         });
         inputMessage.addEventListener('blur', () => {
             inputMessage.value = inputMessage.value.replace(/\s+/g, ' ');
@@ -437,4 +438,77 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     calc(100);
+
+    //send-ajax-form
+    const sendForm = () => {
+        const errorMessage = 'Что-то пошло не так...',
+            successMessage = 'Спасибо, мы скоро с вами свяжемся.';
+
+        const formOne = document.getElementById('form1'),
+            formTwo = document.getElementById('form2'),
+            formThree = document.getElementById('form3');
+
+        const statusMessage = document.createElement('section');
+        statusMessage.className = 'section';
+
+        const getForm = (form) => {
+            form.addEventListener('submit', (event) => {
+                const formName = form.querySelector('.form-name'),
+                    formEmail = form.querySelector('.form-email'),
+                    formPhone = form.querySelector('.form-phone');
+                if (form.closest('.popup')) {
+                    statusMessage.style.cssText = `font-size = 2rem;
+                    color: white;`;
+                } else {
+                    statusMessage.style.cssText = `font-size = 2rem;`;
+                }
+                event.preventDefault();
+                statusMessage.innerHTML = `
+                    <div class="sk-rotating-plane"></div>
+                    `;
+                form.append(statusMessage);
+                const formData = new FormData(form);
+                let body = {};
+                formData.forEach((val, key) => {
+                    body[key] = val;
+                });
+                const timeOutPostData = () => postData(body,
+                    () => {
+                        statusMessage.textContent = successMessage;
+                        formName.value = '';
+                        formEmail.value = '';
+                        formPhone.value = '';
+                    },
+                    (error) => {
+                        statusMessage.textContent = errorMessage;
+                        console.error(error);
+                    }
+                );
+                setTimeout(timeOutPostData, 3000);
+            });
+        };
+
+        const postData = (body, outputData, errorData) => {
+            const request = new XMLHttpRequest();
+            request.addEventListener('readystatechange', () => {
+                if (request.readyState !== 4) {
+                    return;
+                }
+                if (request.status === 200) {
+                    outputData();
+                } else {
+                    errorData(request.status);
+                }
+            });
+            request.open('POST', './server.php');
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(JSON.stringify(body));
+        };
+
+        getForm(formOne);
+        getForm(formTwo);
+        getForm(formThree);
+    };
+
+    sendForm();
 });
