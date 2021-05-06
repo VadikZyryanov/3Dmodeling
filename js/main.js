@@ -105,7 +105,7 @@ window.addEventListener('DOMContentLoaded', () => {
     togglePopup();
 
     //плавная прокрутка
-    const smoothScrolling = (idElem) => {
+    const smoothScrolling = idElem => {
         const element = document.querySelector(idElem);
         const addSmoothScrolling = () => {
             let count = element.offsetTop - Math.floor(document.documentElement.scrollTop);
@@ -462,47 +462,40 @@ window.addEventListener('DOMContentLoaded', () => {
                 } else {
                     statusMessage.style.cssText = `font-size = 2rem;`;
                 }
-                event.preventDefault();
                 statusMessage.innerHTML = `
                     <div class="sk-rotating-plane"></div>
-                    `;
+                `;
+
+                event.preventDefault();
                 form.append(statusMessage);
                 const formData = new FormData(form);
-                let body = {};
-                formData.forEach((val, key) => {
-                    body[key] = val;
-                });
-                const timeOutPostData = () => postData(body,
-                    () => {
+
+                const timeOutPostData = () => postData(formData)
+                    .then((response) => {
+                        if (response.status !== 200) {
+                            throw new Error('status network not 200');
+                        }
                         statusMessage.textContent = successMessage;
                         formName.value = '';
                         formEmail.value = '';
                         formPhone.value = '';
-                    },
-                    (error) => {
+                    })
+                    .catch((error) => {
                         statusMessage.textContent = errorMessage;
                         console.error(error);
-                    }
-                );
+                    });
                 setTimeout(timeOutPostData, 3000);
             });
         };
 
-        const postData = (body, outputData, errorData) => {
-            const request = new XMLHttpRequest();
-            request.addEventListener('readystatechange', () => {
-                if (request.readyState !== 4) {
-                    return;
-                }
-                if (request.status === 200) {
-                    outputData();
-                } else {
-                    errorData(request.status);
-                }
+        const postData = (formData) => {
+            return fetch('./server.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: formData
             });
-            request.open('POST', './server.php');
-            request.setRequestHeader('Content-Type', 'application/json');
-            request.send(JSON.stringify(body));
         };
 
         getForm(formOne);
