@@ -1,6 +1,7 @@
 const sendForm = () => {
     const errorMessage = 'Что-то пошло не так...',
-        successMessage = 'Спасибо, мы скоро с вами свяжемся.';
+        successMessage = 'Спасибо, мы скоро с вами свяжемся.',
+        errorMesageTwo = 'Проверь имя, адрес почты, телефон';
 
     const formOne = document.getElementById('form1'),
         formTwo = document.getElementById('form2'),
@@ -14,6 +15,12 @@ const sendForm = () => {
             const formName = form.querySelector('.form-name'),
                 formEmail = form.querySelector('.form-email'),
                 formPhone = form.querySelector('.form-phone');
+
+            const patternName = /.{2,50}/,
+                patternEmail = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+            let patternPhone = /.{11,}/,
+                patternPhoneTwo = /.{12,}/;
+
             if (form.closest('.popup')) {
                 statusMessage.style.cssText = `font-size = 2rem;
                 color: white;`;
@@ -42,7 +49,17 @@ const sendForm = () => {
                     statusMessage.textContent = errorMessage;
                     console.error(error);
                 });
-            setTimeout(timeOutPostData, 3000);
+
+            if (formPhone.value[0] === '+') patternPhone = patternPhoneTwo;
+            
+            if (patternName.test(formName.value) &&
+                patternEmail.test(formEmail.value) &&
+                patternPhone.test(formPhone.value)) {
+                setTimeout(timeOutPostData, 3000);
+
+            } else {
+                statusMessage.textContent = errorMesageTwo;
+            }
         });
     };
 

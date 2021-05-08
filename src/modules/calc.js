@@ -15,14 +15,6 @@ const calc = (price = 100) => {
             squareValue = +calcSquare.value;
         totalValue.textContent = 0;
 
-        const addTotal = (tot) => {
-            if (totalValue.textContent < tot) {
-                totalValue.textContent = i++;
-            } else {
-                clearInterval(countTotal);
-            }
-        };
-
         if (calcCount.value > 1) {
             countValue += (calcCount.value - 1) / 10;
         }
@@ -36,12 +28,8 @@ const calc = (price = 100) => {
         if (typeValue && squareValue) {
             total = Math.floor(price * typeValue * squareValue * countValue * dayValue);
         }
-        const countTotal = setInterval(() => {
-            addTotal(total);
-        }, 1);
 
-
-        // totalValue.textContent = total;
+        totalValue.textContent = total;
     };
     
     calcBlock.addEventListener('change', (event) => {
